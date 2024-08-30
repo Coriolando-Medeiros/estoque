@@ -108,18 +108,101 @@ def remover
       return
     end
   else
-    puts "Em implementação"
+    produtos = File.readlines("estoque.txt")
+
+    produtos.each_with_index do |produto, indice|
+      puts "Produto: #{indice + 1}: #{produto}"
+    end
+
+    puts "Qual produto deseja excluir?"
+    puts "Digite o número | Enter para sair"
+    escolha = gets.chomp.to_i - 1
+
+    if escolha >= 0 && escolha < produtos.size
+      produtos.delete_at(escolha)
+
+      File.open("estoque.txt", "w") do |file|
+        file.puts(produtos)
+      end
+
+      puts "Produto Excluido!"
+    else
+      puts "Escolha inválida"
+    end
   end
 end
 
 def listar
   puts "Listar todo estoque"
-  puts "Em implementação"
+  if File.exist?("estoque.txt") && !File.zero?("estoque.txt")
+    File.open("estoque.txt", "r") do |file|
+      file.each_line do |linha|
+        puts linha
+      end
+    end
+  else
+    puts "estoque vazio"
+    puts "Adicionar novo produto?"
+    puts "1 - Sim | Enter - não"
+    opcao = gets.chomp
+    if opcao == '1'
+      adicionar
+    else
+      puts "Saindo..."
+      return
+    end
+  end
 end
 
 def atualizar
   puts "Atualizar estoque | preço e quantidade"
-  puts "Em implementação"
+  if File.exist?("estoque.txt") && !File.zero?("estoque.txt")
+    File.open("estoque.txt", "r") do |file|
+      file.each_line do |linha|
+        puts linha
+      end
+    end
+
+    puts ""
+    puts "Digite o nome do produto que deseja atualizar"
+    produto_editar = gets.chomp.capitalize
+
+    linhas = File.readlines("estoque.txt")
+    produto_encontrado = false
+
+    linhas.map! do |linha|
+      if linha.include?("Produto: #{produto_editar} |")
+        print "Produto encontrado: #{linha}"
+        puts "Novo preço (pressione Enter para manter o valor atual)"
+        preco_editar = gets.chomp
+        preco_editar = preco_editar.empty? ? linha.match(/Preço: (\S+)/)[1].to_f : preco_editar.to_f
+
+        puts "Nova quantidade (pressione Enter para manter o valor atual)"
+        quantidade_editar = gets.chomp
+        quantidade_editar = quantidade_editar.empty? ? linha.match(/Quantidade: (\S+)/)[1].to_i : quantidade_editar.to_i
+
+        descricao = linha.match(/Descrição: .+/)[0]
+
+        produto_encontrado = true
+        "Produto: #{produto_editar} | Preço: #{preco_editar} | Quantidade: #{quantidade_editar} | #{descricao}\n"
+      else
+        linha
+      end
+    end
+
+    if produto_encontrado
+      File.open("estoque.txt", "w") do |file|
+        file.puts(linhas)
+      end
+      puts "Produto atualizado com sucesso!"
+    else
+      puts "Produto não encontrado!"
+    end
+  else
+    puts "Arquivo de estoque não encontrado ou está vazio!"
+  end
 end
+
+
 
 menu
